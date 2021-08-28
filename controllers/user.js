@@ -1,9 +1,11 @@
 // *********************************** CONTROLLERS USER **********************************
+// importation des prerequis
 const bcrypt = require('bcrypt');
-const user = require('../models/user');
+const User = require('../models/user');
 
-// Création middleware d'enregistrement
+// Création du middleware d'inscription
 exports.signup = (req, res, next) => {
+    console.log(req.body);
     bcrypt.hash(req.body.password, 10)
     .then((hash) => {
         const user = new User({
