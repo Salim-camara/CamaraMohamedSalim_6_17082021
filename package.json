@@ -18,6 +18,7 @@
   "homepage": "https://github.com/Salim-camara/CamaraMohamedSalim_6_17082021#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "mongoose": "^5.13.7"
+    "mongoose": "^5.13.7",
+    "multer": "^1.4.3"
   }
 }

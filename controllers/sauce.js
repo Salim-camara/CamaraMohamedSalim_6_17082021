@@ -4,9 +4,16 @@ const Sauce = require('../models/sauce');
 
 // création du middleware POST de la sauce
 exports.postSauces = (req, res, next) => {
+    console.log(req.body.sauce);
+
     const sauce = new Sauce({
-        name: req.body.name,
-        userId: req.body.userId,
+        name: '',
+        description: '',
+        userId : '',
+        likes: 0,
+        dislikes: 0,
+        usersLiked: [' '],
+        usersdisLiked: [' ']
     });
     sauce.save()
     .then(() => {
