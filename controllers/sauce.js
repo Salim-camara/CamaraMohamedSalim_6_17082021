@@ -4,16 +4,16 @@ const Sauce = require('../models/sauce');
 
 // création du middleware POST de la sauce
 exports.postSauces = (req, res, next) => {
-    console.log(req.body.sauce);
+    const reqJS = JSON.parse(req.body.sauce);
 
     const sauce = new Sauce({
-        name: '',
-        description: '',
-        userId : '',
-        likes: 0,
-        dislikes: 0,
-        usersLiked: [' '],
-        usersdisLiked: [' ']
+        name: reqJS.name,
+        manufacturer: reqJS.manufacturer,
+        description: reqJS.description,
+        mainPepper: reqJS.mainPepper,
+        heat: reqJS.heat,
+        // on aurait pu utilisé ...reqJS
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     });
     sauce.save()
     .then(() => {
