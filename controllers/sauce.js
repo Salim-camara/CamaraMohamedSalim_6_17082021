@@ -28,8 +28,8 @@ exports.postSauces = (req, res, next) => {
 // création du middleware GET des sauces
 exports.getSauces = (req, res, next) => {
     Sauce.find()
-    .then(() => {
-        res.status(200).json({ message: 'toutes les sauces sont là !'});
+    .then((tomate) => {
+        res.status(200).json(tomate);
     })
     .catch(() => {
         res.status(404).json({ message: 'les sauces nont pas été trouvées'});
