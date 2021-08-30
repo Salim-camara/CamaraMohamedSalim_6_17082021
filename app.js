@@ -2,6 +2,7 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const path = require('path');
 
 // importation des routes
 const userRoutes = require('./routes/user');
@@ -29,6 +30,9 @@ mongoose.connect('mongodb+srv://salim:1234@cluster0.tzupg.mongodb.net/OpcProjet6
 // création de la route vers la connexion des utilisateurs
 app.use('/api/auth', userRoutes);
 app.use('/api/sauces', saucesRoutes);
+
+// configuration vers le dossier image
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 
 
