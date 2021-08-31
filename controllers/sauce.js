@@ -23,15 +23,27 @@ exports.postSauces = (req, res, next) => {
         res.status(500).json({ message : 'erreur' });
     })
     return;
+    next();
 }
 
 // création du middleware GET des sauces
 exports.getSauces = (req, res, next) => {
     Sauce.find()
-    .then((tomate) => {
-        res.status(200).json(tomate);
+    .then((sauce) => {
+        res.status(200).json(sauce);
     })
     .catch(() => {
         res.status(404).json({ message: 'les sauces nont pas été trouvées'});
+    });
+}
+
+// création di middleware GET d'une seule sauce
+exports.getSauce = (req, res, next) => {
+    Sauce.findOne({ _id: req.params.id })
+    .then((sauce) => {
+        res.status(200).json(sauce);
+    })
+    .catch((err) => {
+        res.status(404).json(err);
     });
 }

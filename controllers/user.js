@@ -2,6 +2,7 @@
 // importation des prerequis
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
+const token = require('jsonwebtoken');
 
 // Création du middleware d'inscription
 exports.signup = (req, res, next) => {
@@ -43,7 +44,11 @@ exports.login = (req, res, next) => {
                 } else {
                     res.status(200).json({
                         userId: user._id,
-                        token: 'TOKEN' 
+                        token: token.sign(
+                            { tokenUID: user._id },
+                            'CLEF_SECRETE',
+                            { expiresIn: '24h' }
+                        ) 
                     })
                 }
             })
