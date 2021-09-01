@@ -13,7 +13,12 @@ exports.postSauces = (req, res, next) => {
         mainPepper: reqJS.mainPepper,
         heat: reqJS.heat,
         // on aurait pu utilisé ...reqJS
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+        // Ajout du système de like
+        like: 0,
+        dislike: 0,
+        usersLiked: [''],
+        usersDisliked: ['']
     });
     sauce.save()
     .then(() => {
@@ -45,5 +50,27 @@ exports.getSauce = (req, res, next) => {
     })
     .catch((err) => {
         res.status(404).json(err);
+    });
+}
+
+// modification d'une sauce
+exports.putSauce = (req, res, next) => {
+    Sauce.updateOne({ _id: req.params.id }, {...req.body, _id: req.params.id})
+    .then(() => {
+        res.status(200).json({ message: 'objet modifié !' });
+    })
+    .catch((err) => {
+        res.status(400).json(err);
+    });
+}
+
+// suppression d'une sauce
+exports.deleteSauce = (req, res, next) => {
+    Sauce.deleteOne({ _id: req.params.id })
+    .then(() => {
+        res.status(200).json({ message: 'Sauce bien supprimé !'});
+    })
+    .catch((err) => {
+        res.status(400).json(err);
     });
 }

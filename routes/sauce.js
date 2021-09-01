@@ -8,5 +8,8 @@ const auth = require('../middleware/auth');
 router.get('/', auth, saucesControll.getSauces);
 router.get('/:id', auth, saucesControll.getSauce);
 router.post('/', auth, multer, saucesControll.postSauces);
+// router.post('/:id/like', auth, saucesControll.likeSauce);
+router.put('/:id', auth, saucesControll.putSauce);
+router.delete('/:id', auth, saucesControll.deleteSauce);
 
 module.exports = router;
