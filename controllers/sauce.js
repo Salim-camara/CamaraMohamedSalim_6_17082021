@@ -5,6 +5,7 @@ const Sauce = require('../models/sauce');
 // création du middleware POST de la sauce
 exports.postSauces = (req, res, next) => {
     const reqJS = JSON.parse(req.body.sauce);
+    console.log(reqJS._id);
 
     const sauce = new Sauce({
         name: reqJS.name,
@@ -12,6 +13,7 @@ exports.postSauces = (req, res, next) => {
         description: reqJS.description,
         mainPepper: reqJS.mainPepper,
         heat: reqJS.heat,
+        userId: reqJS.userId,
         // on aurait pu utilisé ...reqJS
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
         // Ajout du système de like
