@@ -1,11 +1,11 @@
 // ******************************** CONTROLLEUR SAUCES *****************************
 // Importation des prérequis
 const Sauce = require('../models/sauce');
+const fs = require('fs');
 
 // création du middleware POST de la sauce
 exports.postSauces = (req, res, next) => {
     const reqJS = JSON.parse(req.body.sauce);
-    console.log(reqJS._id);
 
     const sauce = new Sauce({
         name: reqJS.name,
@@ -55,8 +55,10 @@ exports.getSauce = (req, res, next) => {
     });
 }
 
-// modification d'une sauce
+// modification d'une sauce avec PUT
 exports.putSauce = (req, res, next) => {
+    console.log(req.body);
+
     Sauce.updateOne({ _id: req.params.id }, {...req.body, _id: req.params.id})
     .then(() => {
         res.status(200).json({ message: 'objet modifié !' });
@@ -66,13 +68,21 @@ exports.putSauce = (req, res, next) => {
     });
 }
 
-// suppression d'une sauce
+// suppression d'une sauce avec DELETE
 exports.deleteSauce = (req, res, next) => {
-    Sauce.deleteOne({ _id: req.params.id })
-    .then(() => {
-        res.status(200).json({ message: 'Sauce bien supprimé !'});
+    Sauce.findOne({ _id: req.params.id })
+    .then((sauce) => {
+        const filename = sauce.imageUrl.split('/images/')[1];
+        fs.unlink(`images/${filename}`, () => {
+            Sauce.deleteOne({ _id: req.params.id })
+            .then(() => {
+                res.status(200).json({ message: 'Sauce bien supprimé !'});
     })
-    .catch((err) => {
-        res.status(400).json(err);
+            .catch((err) => {
+                res.status(400).json(err);
     });
+        })
+    })
+    .catch();
+    
 }
