@@ -19,8 +19,8 @@ exports.postSauces = (req, res, next) => {
         // Ajout du système de like
         like: 0,
         dislike: 0,
-        usersLiked: [''],
-        usersDisliked: ['']
+        usersLiked: [],
+        usersDisliked: []
     });
     sauce.save()
     .then(() => {
@@ -57,7 +57,6 @@ exports.getSauce = (req, res, next) => {
 
 // modification d'une sauce avec PUT
 exports.putSauce = (req, res, next) => {
-    console.log(req.body);
 
     Sauce.updateOne({ _id: req.params.id }, {...req.body, _id: req.params.id})
     .then(() => {
@@ -85,4 +84,65 @@ exports.deleteSauce = (req, res, next) => {
     })
     .catch();
     
+}
+
+// système de like dislike
+exports.likeSauce = (req, res, next) => {
+
+    let like = req.body.like
+    let userId = req.body.userId
+    let sauceId = req.params.id
+    
+    switch (like) {
+      case 1 :
+          Sauce.updateOne({ _id: sauceId }, { $push: { usersLiked: userId }})
+            .then(() => res.status(200).json({ message: `J'aime` }))
+            .catch((error) => res.status(400).json({ error }));
+
+
+          let nblike = 1;
+          Sauce.findOne({ _id: sauceId })
+            .then((sauce) => {
+                nblike = sauce.usersLiked.length;
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+
+          Sauce.updateOne({ _id: sauceId }, { like: nblike })
+            .then(() => {
+                console.log('holahola')
+            })
+            .catch(() => {
+                console.log('hellohello')
+            })  
+              
+      break;
+
+      case -1 :
+          Sauce.updateOne({ _id: sauceId }, { $push: { usersDisliked: userId }})
+            .then(() => { res.status(200).json({ message: `Je n'aime pas` }) })
+            .catch((error) => res.status(400).json({ error }))
+      break;
+  
+      case 0 :
+          Sauce.findOne({ _id: sauceId })
+             .then((sauce) => {
+              if (sauce.usersLiked.includes(userId)) { 
+                Sauce.updateOne({ _id: sauceId }, { $pull: { usersLiked: userId }})
+                  .then(() => res.status(200).json({ message: `Neutre` }))
+                  .catch((error) => res.status(400).json({ error }))
+              }
+              if (sauce.usersDisliked.includes(userId)) { 
+                Sauce.updateOne({ _id: sauceId }, { $pull: { usersDisliked: userId }})
+                  .then(() => res.status(200).json({ message: `Neutre` }))
+                  .catch((error) => res.status(400).json({ error }))
+              }
+            })
+            .catch((error) => res.status(404).json({ error }))
+      break;
+        
+        default:
+          console.log('erreur au niveau du switch');
+    }
 }
