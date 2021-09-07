@@ -10,7 +10,7 @@ const sauceSchema = mongoose.Schema({
     imageUrl: { type: String, require: true },
     userId: { type: String, require: true },
     likes: { type: Number },
-    dislike: { type: Number },
+    dislikes: { type: Number },
     usersLiked: { type: [String] },
     usersDisliked: { type: [String] }
 
