@@ -17,8 +17,8 @@ exports.postSauces = (req, res, next) => {
         // on aurait pu utilisé ...reqJS
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
         // Ajout du système de like
-        like: 0,
-        dislike: 0,
+        likes: 0,
+        dislikes: 0,
         usersLiked: [],
         usersDisliked: []
     });
@@ -109,13 +109,13 @@ exports.likeSauce = (req, res, next) => {
                 console.log(err);
             });
 
-          Sauce.updateOne({ _id: sauceId }, { like: nblike })
+          Sauce.updateOne({ _id: sauceId }, { likes: nblike })
             .then(() => {
-                console.log('holahola')
+                console.log('nb like mise à jour');
             })
             .catch(() => {
-                console.log('hellohello')
-            })  
+                console.log('erreur nb like');
+            }); 
               
       break;
 
