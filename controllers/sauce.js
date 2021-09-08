@@ -64,6 +64,14 @@ exports.putSauce = (req, res, next) => {
     if (req.file) {
         // s'il y a une image
 
+        Sauce.findOne({ _id: req.params.id })
+            .then((sauce) => {
+                const removeSauce = sauce.imageUrl;
+                ImageManager.delete(removeSauce);
+                console.log('image bien supprimé !!');
+            })
+            .catch();
+
         const reqJS = JSON.parse(req.body.sauce);
         data = {
 
@@ -92,9 +100,6 @@ exports.putSauce = (req, res, next) => {
 
     
 }
-
-// exemple
-
 
 // suppression d'une sauce avec DELETE
 exports.deleteSauce = (req, res, next) => {
