@@ -4,7 +4,9 @@ const uniqueValidator = require('mongoose-unique-validator');
 
 const userSchema = mongoose.Schema({
     email: { type: String, require: true, unique: true },
-    password: { type: String, require: true}
+    password: { type: String, require: true },
+    waitingTime: { type: Number, require: true },
+    mistakes: { type: Number, require: true }
 });
 
 // Injection du plugin dans notre userSchema

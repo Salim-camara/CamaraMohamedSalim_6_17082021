@@ -13,7 +13,9 @@ exports.signup = (req, res, next) => {
         // création d'un nouvel utilisateur dans la base de données
         const user = new User({
             email: req.body.email,
-            password: hash
+            password: hash,
+            mistakes: 0,
+            waitingTime: 0
         });
         // sauvegarde dans la BDD
         user.save()
@@ -40,7 +42,12 @@ exports.login = (req, res, next) => {
             bcrypt.compare(req.body.password, user.password)
             .then((password) => {
                 if (!password) {
-                    return res.status(401).json({ message: "Mot de passe incorrect !"});
+                    // incrémentation du nb de faute
+                    User.updateOne({ email: req.body.email }, { $inc: { mistakes: +1 } })
+                        .then(() => {
+                            res.status(400).json({ message : 'mot de passe incorrect'});
+                        })
+                        .catch();
                 } else {
                     res.status(200).json({
                         userId: user._id,
