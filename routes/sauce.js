@@ -7,9 +7,9 @@ const auth = require('../middleware/auth');
 // création des différentes routes attendu par le front-end
 router.get('/', saucesControll.getSauces);
 router.get('/:id', auth, saucesControll.getSauce);
-router.post('/', multer, saucesControll.postSauces);
-router.post('/:id/like', auth, saucesControll.likeSauce);
-router.put('/:id', multer, saucesControll.putSauce);
-router.delete('/:id', saucesControll.deleteSauce);
+router.post('/', auth, multer, saucesControll.postSauces);
+router.post('/:id/like', auth, auth, saucesControll.likeSauce);
+router.put('/:id', auth, multer, saucesControll.putSauce);
+router.delete('/:id', auth, saucesControll.deleteSauce);
 
 module.exports = router;
