@@ -39,34 +39,61 @@ exports.login = (req, res, next) => {
         if (!user) {
             return res.status(401).json({ message: "utilisateur non trouvé !"});
         } else {
-            bcrypt.compare(req.body.password, user.password)
-            .then((password) => {
-                if (!password) {
-                    // incrémentation du nb de faute
-                    User.updateOne({ email: req.body.email }, { $inc: { mistakes: +1 } })
-                        .then(() => {
-                            res.status(400).json({ message : 'mot de passe incorrect'});
-                        })
-                        .catch();
-                } else {
-                    res.status(200).json({
-                        userId: user._id,
-                        token: token.sign(
-                            { tokenUID: user._id },
-                            'CLEF_SECRETE',
-                            { expiresIn: '24h' }
-                        ) 
-                    })
-                }
-            })
-            .catch(() => {
-                res.status(500).json({ message: 'erreur inconnue'});
-            });
-        }
+            // test du nb d'erreur
+            User.findOne({ email: req.body.email })
+                .then((user) => {
+                    // developpement du test du date now
+                    if (user.waitingTime > Date.now()) {
+                        console.log('il faut attendre');
+                    } else {
+                        User.updateOne({ email: req.body.email }, { mistakes: 0 })
+                            // on remet le mistakes a 0
+                            .then(() => {
 
+                                if (user.mistakes >= 3) {
+                                    // ******************bloquage du compte*******************************
+                                    User.updateOne({ email: req.body.email }, { waitingTime: Date.now() + 120000 })
+                                        .then(() => {
+                                            res.status(401).json({ message: 'compte bloqué pour 2 minutes'})
+                                        })
+                                        .catch();    
+                                } else {
+                                    // *************************accès au compte*****************************
+                                    bcrypt.compare(req.body.password, user.password)
+                                        .then((password) => {
+                                            if (!password) {
+                                                // incrémentation du nb de faute
+                                                User.updateOne({ email: req.body.email }, { $inc: { mistakes: +1 } })
+                                                    .then(() => {
+                                                        res.status(400).json({ message : 'mot de passe incorrect'});
+                                                    })
+                                                    .catch();
+                                            } else {
+            
+                                                User.updateOne({ email: req.body.email }, { mistakes: 0 })
+                                                    .then(() => {
+                                                        res.status(200).json({
+                                                            userId: user._id,
+                                                            token: token.sign(
+                                                                { tokenUID: user._id },
+                                                                'CLEF_SECRETE',
+                                                                { expiresIn: '24h' }
+                                                            ) 
+                                                        })
+                                                    })
+                                                    .catch();
+                                            }
+                                        })
+                                }
+                            })
+                            .catch();
+                    }
+                })
+                .catch();
+        }
     })
     .catch(() => {
-        res.status(500).json({ message: 'erreur inconnue !'});
+        res.status(404).json({ message: 'utilisateur introuvable'});
     });
 };
 
