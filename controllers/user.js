@@ -3,32 +3,64 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const token = require('jsonwebtoken');
+const { all } = require('../routes/user');
 
 // Création du middleware d'inscription
 exports.signup = (req, res, next) => {
-    console.log(req.body);
-    // cryptage du mot de passe
-    bcrypt.hash(req.body.password, 10)
-    .then((hash) => {
-        // création d'un nouvel utilisateur dans la base de données
-        const user = new User({
-            email: req.body.email,
-            password: hash,
-            mistakes: 0,
-            waitingTime: 0
-        });
-        // sauvegarde dans la BDD
-        user.save()
-        .then(() => {
-            res.status(201).json({ message: 'utilisateur créé !'})
-        })
-        .catch((error) => {
-            res.status(500).json({ error })
-        });
-    })
-    .catch((error) => {
-        res.status(500).json({ error });
-    });
+    const REGEX = [
+        {
+            regex: /(?=.*[0-9])/,
+            error: 'le mot de passe doit contenir au moins 1 chiffre'
+        },
+
+        {
+            regex: /(?=.*[!@#$%^&*])/,
+            error: 'le mot de passe doit contenir au moins 1 caractère spécial'
+        },
+
+        {
+            regex: /.{8,}/,
+            error: 'le mot de passe doit contenir au moins 8 caractère'
+        }
+    ]
+
+    const passW = req.body.password;
+    let allTest = true;
+    
+    // vérification de la qualité du mot de passe
+    for (const rules of REGEX) {
+        
+        if(rules.regex.test(passW) === false) {
+            res.status(400).json({ message: rules.error });
+            allTest = false;
+        }
+    }
+
+    if (allTest === true) {
+        // cryptage du mot de passe
+        bcrypt.hash(req.body.password, 10)
+            .then((hash) => {
+                // création d'un nouvel utilisateur dans la base de données
+                const user = new User({
+                    email: req.body.email,
+                    password: hash,
+                    mistakes: 0,
+                    waitingTime: 0
+                });
+                // sauvegarde dans la BDD
+                user.save()
+                .then(() => {
+                    res.status(201).json({ message: 'utilisateur créé !'})
+                })
+                .catch((error) => {
+                    res.status(500).json({ error, message : 'erreur 500' })
+                });
+            })
+            .catch((error) => {
+                res.status(500).json({ error });
+            });
+    }
+    
 };
 
 // Création middleware de connexion

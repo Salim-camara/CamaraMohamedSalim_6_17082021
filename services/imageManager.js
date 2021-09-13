@@ -1,5 +1,6 @@
 const fs = require('fs');
 
+// Supression d'image
 module.exports = {
     delete (imageUrl) {
 
