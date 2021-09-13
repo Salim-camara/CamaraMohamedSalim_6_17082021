@@ -44,49 +44,56 @@ exports.login = (req, res, next) => {
                 .then((user) => {
                     // developpement du test du date now
                     if (user.waitingTime > Date.now()) {
+                        res.status(401).json({ message: 'il faut attendre !'});
                         console.log('il faut attendre');
                     } else {
-                        User.updateOne({ email: req.body.email }, { mistakes: 0 })
-                            // on remet le mistakes a 0
-                            .then(() => {
 
-                                if (user.mistakes >= 3) {
-                                    // ******************bloquage du compte*******************************
-                                    User.updateOne({ email: req.body.email }, { waitingTime: Date.now() + 120000 })
-                                        .then(() => {
-                                            res.status(401).json({ message: 'compte bloqué pour 2 minutes'})
-                                        })
-                                        .catch();    
-                                } else {
-                                    // *************************accès au compte*****************************
-                                    bcrypt.compare(req.body.password, user.password)
-                                        .then((password) => {
-                                            if (!password) {
-                                                // incrémentation du nb de faute
-                                                User.updateOne({ email: req.body.email }, { $inc: { mistakes: +1 } })
+                        if (user.mistakes >= 3) {
+                            // ******************bloquage du compte*******************************
+                            User.updateOne({ email: req.body.email }, { waitingTime: Date.now() + 60000 })
+                                .then(() => {
+                                    User.updateOne({ email: req.body.email }, { mistakes: 0 })
+                                        .then(() => res.status(401).json({ message: 'compte bloqué pour 2 minutes'}))
+                                        .catch();
+                                })
+                                .catch();    
+                        } else {
+                            // *************************accès au compte*****************************
+                            bcrypt.compare(req.body.password, user.password)
+                                .then((password) => {
+                                    if (!password) {
+                                        // incrémentation du nb de faute
+                                        User.findOne({ email: req.body.email }) 
+                                            .then((user) => {
+                                                let newMis = user.mistakes + 1;
+                                                console.log(newMis);
+                                                User.updateOne({ email: req.body.email }, { mistakes: newMis })
                                                     .then(() => {
                                                         res.status(400).json({ message : 'mot de passe incorrect'});
                                                     })
                                                     .catch();
-                                            } else {
-            
-                                                User.updateOne({ email: req.body.email }, { mistakes: 0 })
-                                                    .then(() => {
-                                                        res.status(200).json({
-                                                            userId: user._id,
-                                                            token: token.sign(
-                                                                { tokenUID: user._id },
-                                                                'CLEF_SECRETE',
-                                                                { expiresIn: '24h' }
-                                                            ) 
-                                                        })
-                                                    })
-                                                    .catch();
-                                            }
-                                        })
-                                }
-                            })
-                            .catch();
+
+                                            })
+                                            .catch();
+
+                                    } else {
+    
+                                        User.updateOne({ email: req.body.email }, { mistakes: 0 })
+                                            .then(() => {
+                                                res.status(200).json({
+                                                    userId: user._id,
+                                                    token: token.sign(
+                                                        { tokenUID: user._id },
+                                                        'CLEF_SECRETE',
+                                                        { expiresIn: '24h' }
+                                                    ) 
+                                                })
+                                            })
+                                            .catch();
+                                    }
+                                })
+                        }
+                    // 
                     }
                 })
                 .catch();
