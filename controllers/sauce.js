@@ -80,7 +80,7 @@ exports.putSauce = (req, res, next) => {
             description: reqJS.description,
             mainPepper: reqJS.mainPepper,
             heat: reqJS.heat,
-            imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+            imageUrl: ImageManager.url(req),
              _id: req.params.id
         }
         

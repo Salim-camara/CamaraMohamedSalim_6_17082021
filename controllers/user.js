@@ -4,31 +4,16 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const token = require('jsonwebtoken');
 const { all } = require('../routes/user');
+const Config = require('../services/configuration');
 
 // Création du middleware d'inscription
 exports.signup = (req, res, next) => {
-    const REGEX = [
-        {
-            regex: /(?=.*[0-9])/,
-            error: 'le mot de passe doit contenir au moins 1 chiffre'
-        },
-
-        {
-            regex: /(?=.*[!@#$%^&*])/,
-            error: 'le mot de passe doit contenir au moins 1 caractère spécial'
-        },
-
-        {
-            regex: /.{8,}/,
-            error: 'le mot de passe doit contenir au moins 8 caractère'
-        }
-    ]
 
     const passW = req.body.password;
     let allTest = true;
     
     // vérification de la qualité du mot de passe
-    for (const rules of REGEX) {
+    for (const rules of Config.REGEX) {
         
         if(rules.regex.test(passW) === false) {
             res.status(400).json({ message: rules.error });
@@ -66,7 +51,7 @@ exports.signup = (req, res, next) => {
 // Création middleware de connexion
 exports.login = (req, res, next) => {
     // comparaison des données avec la BDD
-    User.findOne({ email: req.body.email})
+    User.findOne({ email: req.body.email })
     .then((user) => {
         if (!user) {
             return res.status(401).json({ message: "utilisateur non trouvé !"});
@@ -80,12 +65,12 @@ exports.login = (req, res, next) => {
                         console.log('il faut attendre');
                     } else {
 
-                        if (user.mistakes >= 3) {
+                        if (user.mistakes >= Config.mistakesNumber) {
                             // ******************bloquage du compte*******************************
-                            User.updateOne({ email: req.body.email }, { waitingTime: Date.now() + 60000 })
+                            User.updateOne({ email: req.body.email }, { waitingTime: Date.now() + Config.loginWait })
                                 .then(() => {
                                     User.updateOne({ email: req.body.email }, { mistakes: 0 })
-                                        .then(() => res.status(401).json({ message: 'compte bloqué pour 2 minutes'}))
+                                        .then(() => res.status(401).json({ message: 'compte bloqué pour 1 minute'}))
                                         .catch();
                                 })
                                 .catch();    
@@ -99,6 +84,7 @@ exports.login = (req, res, next) => {
                                             .then((user) => {
                                                 let newMis = user.mistakes + 1;
                                                 console.log(newMis);
+                                                console.log(Config.REGEX);
                                                 User.updateOne({ email: req.body.email }, { mistakes: newMis })
                                                     .then(() => {
                                                         res.status(400).json({ message : 'mot de passe incorrect'});
@@ -116,8 +102,8 @@ exports.login = (req, res, next) => {
                                                     userId: user._id,
                                                     token: token.sign(
                                                         { tokenUID: user._id },
-                                                        'CLEF_SECRETE',
-                                                        { expiresIn: '24h' }
+                                                        Config.secretKey,
+                                                        { expiresIn: Config.tokenTTL }
                                                     ) 
                                                 })
                                             })
@@ -125,7 +111,6 @@ exports.login = (req, res, next) => {
                                     }
                                 })
                         }
-                    // 
                     }
                 })
                 .catch();

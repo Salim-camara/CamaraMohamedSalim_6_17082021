@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { url } = require('inspector');
 
 // Supression d'image
 module.exports = {
@@ -12,5 +13,9 @@ module.exports = {
             console.log('salut');
     
         })
+    },
+
+    url (req) {
+        return `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
     }
 }
