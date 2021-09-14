@@ -91,6 +91,7 @@ exports.putSauce = (req, res, next) => {
     }
     Sauce.updateOne({ _id: req.params.id }, data)
         .then(() => {
+            console.log(req.body);
             res.status(200).json({ message: 'objet modifié !' });
         })
         .catch((err) => {

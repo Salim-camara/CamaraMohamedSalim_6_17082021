@@ -30,7 +30,10 @@ module.exports = {
             regex: /.{8,}/,
             error: 'le mot de passe doit contenir au moins 8 caractères'
         }
-    ]
+    ],
+
+    // Regex des entrées
+    inputRegex: /(?=.*[0-9])/
 
 
 }

@@ -2,10 +2,6 @@ const token = require('jsonwebtoken');
 
 
 module.exports = (req, res, next) => {
-
-    console.log('hello');
-    console.log(req.method);
-    console.log(req.body);
     
     try {
         const userToken = req.headers.authorization.split(' ')[1];
