@@ -9,7 +9,7 @@ const inputController = require('../middleware/inputControl');
 router.get('/', saucesControll.getSauces);
 router.get('/:id', auth, saucesControll.getSauce);
 router.post('/', auth, multer, saucesControll.postSauces);
-router.post('/:id/like', auth, auth, saucesControll.likeSauce);
+router.post('/:id/like', auth, saucesControll.likeSauce);
 router.put('/:id', auth, inputController, multer, saucesControll.putSauce);
 router.delete('/:id', auth, saucesControll.deleteSauce);
 

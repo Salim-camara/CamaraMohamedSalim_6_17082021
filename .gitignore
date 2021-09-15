@@ -1,2 +1,6 @@
+# node modules
 node_modules
-images
+
+# dossier image
+images/*
+!images/.gitkeep
