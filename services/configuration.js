@@ -33,7 +33,7 @@ module.exports = {
     ],
 
     // Regex des entrées
-    inputRegex: /(?=.*[0-9])/
+    inputRegex: /(?=.*[@#$%^&*=<>/])/
 
 
 }

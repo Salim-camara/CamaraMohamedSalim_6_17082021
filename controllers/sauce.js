@@ -3,10 +3,15 @@
 const Sauce = require('../models/sauce');
 const fs = require('fs');
 const ImageManager = require('../services/imageManager');
+const inputController = require('../middleware/inputControl');
+const Config = require('../services/configuration');
 
 // création du middleware POST de la sauce
 exports.postSauces = (req, res, next) => {
     const reqJS = JSON.parse(req.body.sauce);
+
+    // test des input
+    inputController(reqJS, res);
 
     const sauce = new Sauce({
         name: reqJS.name,
@@ -29,9 +34,7 @@ exports.postSauces = (req, res, next) => {
     })
     .catch((error) => {
         res.status(500).json({ message : 'erreur' });
-    })
-    return;
-    next();
+    });
 }
 
 // création du middleware GET des sauces
@@ -73,6 +76,8 @@ exports.putSauce = (req, res, next) => {
             .catch();
 
         const reqJS = JSON.parse(req.body.sauce);
+
+        // fin test
         data = {
 
             name: reqJS.name,
@@ -83,15 +88,22 @@ exports.putSauce = (req, res, next) => {
             imageUrl: ImageManager.url(req),
              _id: req.params.id
         }
+
+        // test des input
+        inputController(data, res);
+
         
     } else {
         // s'il n'y a pas d'image
+
         data = {...req.body, _id: req.params.id};
+
+        // test des input
+        inputController(data, res);
         
     }
     Sauce.updateOne({ _id: req.params.id }, data)
         .then(() => {
-            console.log(req.body);
             res.status(200).json({ message: 'objet modifié !' });
         })
         .catch((err) => {

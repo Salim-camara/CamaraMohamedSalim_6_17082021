@@ -2,34 +2,36 @@ const { inputRegex } = require('../services/configuration');
 const Config = require('../services/configuration');
 
 
-module.exports = (req, res, next) => {
+module.exports = (req, res) => {
 
     try {
+
         let entree = {
-            name: req.body.name,
-            desc: req.body.description,
-            main: req.body.mainPepper,
-            manu: req.body.manufacturer
+            name: req.name,
+            desc: req.description,
+            main: req.mainPepper,
+            manu: req.manufacturer
         }
+
+        console.log(entree.name);
 
         let allTest = true;
 
-        const regex = /.{8,}/;
+        const regex = Config.inputRegex;
 
         for (const input in entree) {
 
-            if (regex.test(entree[input]) === false) {
+            if (regex.test(entree[input])) {
 
                 allTest = false;
             } 
         }
 
         if (allTest === true) {
-            res.status(200).json({ message: 'c good'});
-            next();
+            console.log('tout est ok')
         } else {
-            console.log('problème au niveau du next');
-            res.status(400).json({ message: 'problème au niveau du next' });
+            console.log('certains caractères ne sont pas valide');
+            res.status(400).json({ message: 'certains caractères ne sont pas valide' });
         }
 
     } catch (err) {
